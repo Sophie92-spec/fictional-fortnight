@@ -150,8 +150,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     border-top:1px solid rgba(255,255,255,.04);
 }
 .bot.on{height:66.67vh}
-.bi{height:66.67vh;display:flex;flex-direction:column;padding:8px 20px 8px;align-items:center;background:#0b0e1f;transition:opacity .9s ease-in-out}
+.bi{height:66.67vh;display:flex;flex-direction:column;padding:8px 20px 0;align-items:center;background:#0b0e1f;transition:opacity .9s ease-in-out}
 .bi.fade{opacity:0}
+.ft{flex-shrink:0;padding:16px 0;width:100%;display:flex;justify-content:center;border-top:1px solid rgba(255,255,255,.04);min-height:64px;align-items:center}
 .fl{display:flex;gap:10px;flex-shrink:0;margin-bottom:6px;width:100%;max-width:880px;justify-content:center}
 .fl-lb{display:flex;align-items:center;gap:5px;font-size:.85rem;color:rgba(255,255,255,.35);cursor:pointer;user-select:none;padding:4px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.06);transition:all .2s}
 .fl-lb:hover{color:rgba(255,255,255,.65);border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
@@ -218,8 +219,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="d"><em>① 选择文件</em> — 点击下方按钮，选择 Cache_Data 中的 data_1 文件<br><br><em>② 自动扫描</em> — 工具自动解析缓存数据，提取资源链接<br><br><em>③ 预览下载</em> — 在下方列表中预览资源，点击即可下载</div>
         </div>
     </div>
-    <a href="https://github.com/Sophie92-spec/fictional-fortnight" target="_blank" style="position:absolute;top:16px;right:20px;z-index:10;color:rgba(255,255,255,.3);font-size:1.4rem;text-decoration:none;transition:.2s" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">🐙</a>
-<div class="stars" id="stars"></div>
+    <div class="stars" id="stars"></div>
     <div class="ct" id="ct">
         <div class="i">✧</div>
     <h1>米哈游启动器背景提取</h1>
@@ -253,10 +253,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="bi">
         <div class="pb" id="pb"><div class="pf" id="pf"></div></div>
         <div class="sc" id="sc"></div>
+        <div class="ft">
+            <a href="https://github.com/Sophie92-spec/fictional-fortnight" target="_blank" title="在 GitHub 上查看源代码" style="text-decoration:none;opacity:.35;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='.35'">
+                <svg viewBox="0 0 16 16" width="30" height="30" fill="currentColor" style="color:rgba(255,255,255,.5)">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                <span style="font-size:.82rem;color:rgba(255,255,255,.35)">GitHub</span>
+            </a>
+            <span style="color:rgba(255,255,255,.08);font-size:1.2rem;padding:0 6px">|</span>
+            <a href="https://space.bilibili.com/447878463" target="_blank" title="Bilibili 主页" style="text-decoration:none;opacity:.35;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='.35'">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" style="color:rgba(255,255,255,.5)">
+                    <path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 01-.373-.907c0-.373.124-.684.373-.933.249-.249.56-.373.933-.373.373 0 .694.124.96.373l1.974 1.867h4.947l1.973-1.867c.267-.249.588-.373.96-.373.374 0 .685.124.934.373.249.249.373.56.373.933a1.17 1.17 0 01.16.587c0 .231-.053.44-.16.627l-1.174 1.106zM6.667 16.347c.8 0 1.48-.278 2.04-.833.56-.556.84-1.234.84-2.034 0-.8-.28-1.48-.84-2.04-.56-.56-1.24-.84-2.04-.84-.8 0-1.48.28-2.04.84-.56.56-.84 1.24-.84 2.04 0 .8.28 1.478.84 2.034.56.555 1.24.833 2.04.833zm10.666 0c.8 0 1.48-.278 2.04-.833.56-.556.84-1.234.84-2.034 0-.8-.28-1.48-.84-2.04-.56-.56-1.24-.84-2.04-.84-.8 0-1.48.28-2.04.84-.56.56-.84 1.24-.84 2.04 0 .8.28 1.478.84 2.034.56.555 1.24.833 2.04.833z"/>
+                </svg>
+                <span style="font-size:.82rem;color:rgba(255,255,255,.35)">Bilibili</span>
+            </a>
+        </div>
     </div>
 </div>
 
 <div class="ts" id="ts">已复制</div>
+
 
 <script>
 const X={video:['.webm','.mp4','.m3u8'],image:['.png','.jpg','.jpeg','.gif','.webp'],other:['.json','.html','.js','.css','.xml','.dat']}
