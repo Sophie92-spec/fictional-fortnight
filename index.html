@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>米哈游启动器背景提取器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#1c1c1e;height:100vh;overflow:hidden}
+
+.top{
+    height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;text-align:center;
+    background:linear-gradient(180deg,#0b0e1f 0%,#12152a 40%,#1a1d3a 100%);
+    position:relative;overflow:hidden;transition:height .9s ease-in-out;
+}
+/* 星空 */
+.top .stars{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;transition:opacity .9s ease-in-out}
+.top .stars .s{
+    position:absolute;font-size:var(--sz,10px);line-height:1;
+    text-shadow:0 0 var(--glow,4px) rgba(255,255,255,.15);
+    opacity:.6;
+}
+.top .stars .s.bright{color:#a5b4fc;text-shadow:0 0 14px rgba(165,180,252,.3);opacity:.8}
+.top .stars .s.faint{opacity:.3}
+/* 全屏展开内容入场 - 与顶部收缩同步 */
+.top .enter{
+    animation:enterContent 1s ease-in-out both;
+}
+.top .init .enter{
+    animation:enterContent 1s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes enterContent{
+    0%{opacity:0;transform:translateY(25px) scale(.92)}
+    50%{opacity:.4}
+    100%{opacity:1;transform:translateY(0) scale(1)}
+}
+/* 侧面板卡片入场 */
+.side .card{transition:opacity .9s ease-in-out,transform .9s ease-in-out}
+.side-l .card,.side-r .card{transform:translateX(0);opacity:1}
+.top.init .side-l .card{transform:translateX(-15px);opacity:0;animation:cardIn .9s ease-in-out forwards}
+.top.init .side-r .card{transform:translateX(15px);opacity:0;animation:cardIn .9s ease-in-out forwards}
+.top.init .side-l .card{animation-delay:.3s}
+.top.init .side-r .card{animation-delay:.45s}
+@keyframes cardIn{0%{opacity:0}100%{opacity:1;transform:translateX(0)}}
+
+.top.init .ct .enter:nth-child(2){animation-delay:.08s}
+.top.init .ct .enter:nth-child(3){animation-delay:.14s}
+.top.init .ct .enter:nth-child(4){animation-delay:.2s}
+.top.init .ct .enter:nth-child(5){animation-delay:.26s}
+.top.init .ct .enter:nth-child(6){animation-delay:.32s}
+.top.init .ct .enter:nth-child(7){animation-delay:.38s}
+.top .ct .enter:nth-child(2){animation-delay:.12s}
+.top .ct .enter:nth-child(3){animation-delay:.18s}
+.top .ct .enter:nth-child(4){animation-delay:.24s}
+.top .ct .enter:nth-child(5){animation-delay:.30s}
+.top .ct .enter:nth-child(6){animation-delay:.36s}
+
+@keyframes shimmer{
+    0%{opacity:var(--o1,.2);transform:scale(var(--s1,.8))rotate(var(--r1,-8deg))}
+    50%{opacity:var(--o2,1);transform:scale(var(--s2,1.1))rotate(var(--r2,2deg))}
+    100%{opacity:var(--o3,.3);transform:scale(var(--s3,.85))rotate(var(--r3,-5deg))}
+}
+
+/* 流星 */
+.top .meteor{
+    position:absolute;pointer-events:none;z-index:1;
+    animation:fall var(--dur) ease-out forwards;
+}
+.top .meteor .s{
+    display:block;font-size:8px;line-height:1;color:#fff;
+    text-shadow:0 0 15px rgba(255,220,180,.5),0 0 40px rgba(255,200,100,.15);
+}
+@keyframes fall{
+    0%{transform:translate(0,0);opacity:0}
+    3%{opacity:1}
+    90%{opacity:1}
+    100%{transform:translate(var(--tx),var(--ty));opacity:0}
+}
+.top.sm .stars{opacity:.3}
+.top .ct{display:flex;flex-direction:column;align-items:center}
+.top .side{position:absolute;top:50%;width:260px;pointer-events:none;transition:opacity .9s ease-in-out,transform .9s ease-in-out}
+.top .side .card,.top .side input,.top .side button{pointer-events:auto}
+.top.sm .side{opacity:0;pointer-events:none}
+.top.sm .side-l{transform:translateY(-50%) translateX(-20px)}
+.top.sm .side-r{transform:translateY(-50%) translateX(20px)}
+.top .side-l{transform:translateY(-50%) translateX(0)}
+.top .side-r{transform:translateY(-50%) translateX(0)}
+.top .side-l{left:50%;margin-left:-480px;text-align:right}
+.top .side-r{right:50%;margin-right:-480px;text-align:left}
+.top .side .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 20px;backdrop-filter:blur(8px);margin-bottom:12px;transition:opacity .9s ease-in-out}
+.top.sm .side .card{padding:10px 14px}
+.top .side .card .t{font-size:.78rem;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:5px}
+.top .side .card .d{font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.7}
+.top .side .card .d em{color:#a5b4fc;font-style:normal;font-weight:600}
+.top .side .card .d .tag{display:inline-block;background:rgba(165,180,252,.1);color:#a5b4fc;padding:1px 8px;border-radius:4px;font-size:.68rem}
+@media(max-width:1024px){.top .side{display:none}}
+.top.sm{height:33.33vh;padding:8px 16px 4px}
+.top.sm .path-tags{font-size:.7rem!important;margin-top:1px!important}
+.path-tags{transition:font-size .9s ease-in-out}
+.top.sm .btn{padding:6px 16px}
+.top .i{font-size:3rem;color:#a5b4fc;text-shadow:0 0 30px rgba(165,180,252,.3);margin-bottom:2px}
+.top h1{font-size:2.6rem;font-weight:700;background:linear-gradient(135deg,#6366f1,#8b5cf6,#a855f7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
+.top .s{font-size:.88rem;color:rgba(255,255,255,.4);margin-bottom:2px;letter-spacing:2px}
+.top .ln{width:50px;height:2.5px;background:linear-gradient(90deg,#6366f1,#a855f7);border-radius:99px;margin:4px auto 4px}
+.dash{display:flex;gap:20px;justify-content:center;opacity:0;height:32px;margin:0;transition:opacity .5s ease}
+.dash.on{opacity:1}
+.di{font-size:.85rem;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:5px 14px;border-radius:99px;flex-shrink:0}
+.di .b{color:rgba(255,255,255,.3);font-size:.78rem}
+.di .v{color:#a5b4fc;font-weight:700;font-size:1rem}
+.di .d{width:8px;height:8px;border-radius:50%;display:inline-block;background:rgba(255,255,255,.15)}
+.di .d.g{background:#22c55e}
+
+.lower{transition:transform .9s ease-in-out;transform:translateY(-38px)}
+.top.sm .lower{transform:translateY(0)}
+.top.sm .dash{margin:0;gap:4px}
+.top.sm #cl{padding:2px 8px;font-size:.6rem;border-radius:4px}
+.top.sm .pk-wrap .drop-zone{padding:6px 16px}
+.st{font-size:.85rem;color:rgba(255,255,255,.45);min-height:1em;line-height:1;margin:0 0 2px;transition:opacity .3s ease;transform:translateZ(0)}
+.st .n{color:#6366f1;font-weight:700}
+.btn-wrap{position:relative}
+
+.btn{padding:10px 28px;border-radius:10px;font-size:.9rem;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;font-weight:600;font-family:inherit}
+#cl{transition:opacity .9s ease-in-out,visibility .9s ease-in-out,padding .9s ease-in-out,font-size .9s ease-in-out}
+#cl:hover{background:rgba(255,255,255,.12)!important;color:rgba(255,255,255,.7)!important}
+
+/* 全新拖拽按钮 */
+.pk-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:4px}
+.pk-wrap .drop-zone{
+    position:relative;border:2px dashed rgba(165,180,252,.2);border-radius:16px;
+    padding:12px 30px;cursor:pointer;transition:padding .9s ease-in-out,border-color .3s,background .3s,box-shadow .3s;
+    background:rgba(255,255,255,.03);min-width:240px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.pk-wrap .drop-zone:hover,.pk-wrap .drop-zone.dragover{
+    border-color:rgba(165,180,252,.4);background:rgba(99,102,241,.06);
+    box-shadow:0 0 30px rgba(99,102,241,.08);
+}
+.pk-wrap .drop-zone .dz-icon{font-size:1.6rem;line-height:1;color:rgba(255,255,255,.5);transition:color .3s,transform .3s}
+.pk-wrap .drop-zone:hover .dz-icon{color:rgba(165,180,252,.8);transform:scale(1.05)}
+.pk-wrap .drop-zone .dz-text{font-size:.85rem;color:rgba(255,255,255,.35);font-weight:500;letter-spacing:.3px;transition:opacity .3s ease;transform:translateZ(0)}
+.pk-wrap .drop-zone .dz-text strong{color:rgba(165,180,252,.6);font-weight:600}
+.bp:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(99,102,241,.3)}
+.bp:active .inner{transform:scale(.97)}
+.bp:disabled{opacity:.4;pointer-events:none;box-shadow:none}
+
+.bot{
+    overflow:hidden;background:#0b0e1f;height:0;
+    transition:height .9s ease-in-out;
+    border-top:1px solid rgba(255,255,255,.04);
+}
+.bot.on{height:66.67vh}
+.bi{height:66.67vh;display:flex;flex-direction:column;padding:8px 20px 8px;align-items:center;background:#0b0e1f;transition:opacity .9s ease-in-out}
+.bi.fade{opacity:0}
+.fl{display:flex;gap:10px;flex-shrink:0;margin-bottom:6px;width:100%;max-width:880px;justify-content:center}
+.fl-lb{display:flex;align-items:center;gap:5px;font-size:.85rem;color:rgba(255,255,255,.35);cursor:pointer;user-select:none;padding:4px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.06);transition:all .2s}
+.fl-lb:hover{color:rgba(255,255,255,.65);border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+.fl-lb input{display:none}
+.fl-lb .mk{width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:.2s}
+.fl-lb input:checked+.mk{background:#6366f1;border-color:#6366f1}
+.fl-lb input:checked+.mk::after{content:'✓';color:#fff;font-weight:700}
+.sc{flex:1;overflow-y:auto;width:100%;max-width:960px;background:#0b0e1f}
+.sc::-webkit-scrollbar{width:3px}
+.sc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:99px}
+
+.pb{height:2px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;margin-bottom:8px;display:none;flex-shrink:0}
+.pf{height:100%;background:linear-gradient(90deg,#6366f1,#a855f7);width:0%;border-radius:99px;transition:width .3s}
+
+.ch{font-size:.9rem;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:1px;padding:12px 4px 8px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:2px;background:#0b0e1f}
+.l{padding:6px 0 12px;display:flex;flex-direction:column;gap:6px;border-radius:8px;margin-bottom:4px;background:#0b0e1f}
+
+.it{display:flex;align-items:center;gap:18px;padding:14px 18px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.it:hover{background:rgba(255,255,255,.07);border-color:rgba(165,180,252,.12)}
+
+.pv{width:320px;height:180px;border-radius:8px;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.06);cursor:pointer}
+.pv:hover{border-color:rgba(165,180,252,.2)}
+.pv img,.pv video{width:100%;height:100%;object-fit:cover}
+.pv video::-webkit-media-controls-enclosure{background:rgba(0,0,0,.3)}
+.pv .ph{font-size:1.6rem;opacity:.15;color:rgba(255,255,255,.4)}
+
+.u{font-size:.95rem;color:#c4b5fd;word-break:break-all;line-height:1.5;text-decoration:none;font-weight:500}
+.u:hover{color:#e0d6ff}
+.f{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+.t{font-size:.72rem;padding:3px 10px;border-radius:4px;border:none;font-weight:500}
+.tg{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
+.tc{background:rgba(165,180,252,.12);color:#c4b5fd;font-weight:600}
+.c{font-size:.7rem;padding:3px 12px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);cursor:pointer;font-family:inherit}
+.c:hover{border-color:#a5b4fc;color:#c4b5fd;background:rgba(165,180,252,.08)}
+
+.ts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1c1c1e;color:#fff;padding:10px 24px;border-radius:8px;font-size:.78rem;opacity:0;pointer-events:none;transition:.3s;z-index:999}
+.ts.s{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="top" id="top">
+    <div class="side side-l">
+        <div class="card">
+            <div class="t">✦ 这是什么</div>
+            <div class="d">米哈游启动器运行时会自动缓存启动界面的动态背景与宣传图，存放在 <span class="tag">data_1</span> 缓存文件中。</div>
+        </div>
+        <div class="card" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.12)">
+            <div class="t">📂 快速路径</div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+                <input type="text" value="%AppData%\miHoYo\HYP\1_1\fedata\Cache\Cache_Data" readonly style="flex:1;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:8px 10px;font-size:.75rem;font-family:monospace;color:#a5b4fc;outline:none;width:100%;min-width:0;text-overflow:clip" onfocus="this.select()">
+                <button onclick="navigator.clipboard.writeText('%AppData%\\miHoYo\\HYP\\1_1\\fedata\\Cache\\Cache_Data');t('✅ 路径已复制')" style="background:rgba(99,102,241,.15);border:none;border-radius:6px;padding:6px 12px;color:#a5b4fc;font-size:.75rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s" onmouseover="this.style.background='rgba(99,102,241,.25)'" onmouseout="this.style.background='rgba(99,102,241,.15)'">📋 复制</button>
+            </div>
+            <div style="font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.6;margin-top:6px;padding:8px 10px;background:rgba(0,0,0,.15);border-radius:6px">
+                ① 点击上方 <span style="color:#a5b4fc">📋 复制</span> 复制路径<br>
+                ② 打开「此电脑」→ 地址栏粘贴 → 回车<br>
+                ③ 选择 <span style="color:#a5b4fc">data_1</span> 文件即可扫描
+            </div>
+        </div>
+    </div>
+    <div class="side side-r">
+        <div class="card">
+            <div class="t">✦ 操作方式</div>
+            <div class="d"><em>① 选择文件</em> — 点击下方按钮，选择 Cache_Data 中的 data_1 文件<br><br><em>② 自动扫描</em> — 工具自动解析缓存数据，提取资源链接<br><br><em>③ 预览下载</em> — 在下方列表中预览资源，点击即可下载</div>
+        </div>
+    </div>
+    <div class="stars" id="stars"></div>
+    <div class="ct" id="ct">
+        <div class="i">✧</div>
+    <h1>米哈游启动器背景提取</h1>
+    <p class="s">✦ 轻 松 提 取 动 态 背 景 ✦</p>
+    <div class="path-tags" style="font-size:.78rem;color:rgba(255,255,255,.3);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+        <span>📁 Cache_Data</span> <span>📄 data_1</span>
+    </div>
+    <div class="ln"></div>
+    <div class="dash" id="dash">
+        <div class="di"><span class="d"></span> <span class="b">视频</span> <span class="v" id="dv">0</span></div>
+        <div class="di"><span class="d"></span> <span class="b">图片</span> <span class="v" id="di">0</span></div>
+        <div class="di"><span class="d"></span> <span class="b">其他</span> <span class="v" id="do">0</span></div>
+    </div>
+    <div class="lower" id="lower">
+        <div class="st" id="st">✧ 选择 data_1 开始解析</div>
+        <div class="btn-wrap" style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div class="pk-wrap">
+                <div class="drop-zone" id="dz">
+                    <div class="dz-icon">📂</div>
+                    <div class="dz-text">选择或拖拽 <strong>data_1</strong> 文件</div>
+                </div>
+                <input type="file" id="fi" multiple style="display:none">
+            </div>
+            <button class="btn" id="cl" style="opacity:0;visibility:hidden;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);padding:8px 14px;border-radius:8px;font-size:.75rem;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.06)">✕ 清除</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="bot" id="bot">
+    <div class="bi">
+        <div class="pb" id="pb"><div class="pf" id="pf"></div></div>
+        <div class="sc" id="sc"></div>
+    </div>
+</div>
+
+<div class="ts" id="ts">已复制</div>
+
+<script>
+const X={video:['.webm','.mp4','.m3u8'],image:['.png','.jpg','.jpeg','.gif','.webp'],other:['.json','.html','.js','.css','.xml','.dat']}
+const Q=[];for(const[c,x]of Object.entries(X))for(const e of x)Q.push({cat:c,ext:e,hex:[...e].map(c=>c.charCodeAt(0))})
+
+function sc(d){const r=[];for(const p of Q)for(let i=0;i<=d.length-p.hex.length;i++){let ok=1;for(let j=0;j<p.hex.length;j++)if(d[i+j]!==p.hex[j]){ok=0;break}if(ok)r.push({off:i,cat:p.cat,ext:p.ext})}return r}
+function nr(d,o,b=4096,a=512){const s=Math.max(0,o-b),e=Math.min(d.length,o+a);let t;try{t=new TextDecoder('utf-8').decode(d.slice(s,e))}catch{return[]}const u=[];const rx=/https?:\/\/[^\s"'\x00<>{}|\\^`\[\]]+/g,m=rx.exec(t);if(m)u.push(m[0]);return u}
+
+const $=function(id){return document.getElementById(id)}
+const topEl=$('top'),botEl=$('bot'),scEl=$('sc')
+const fi=$('fi'),pb=$('pb'),pf=$('pf'),cl=$('cl')
+const st=$('st'),dv=$('dv'),di=$('di'),do_=$('do'),dash=$('dash'),ts=$('ts')
+let results=[],activeCats={video:1,image:0,other:0}
+document.getElementById('sc').addEventListener('change',function(e){
+    if(e.target.closest('.fl-lb')){
+        var label=e.target.closest('.fl-lb')
+        activeCats[label.dataset.c]=e.target.checked?1:0
+        renderResults()
+    }
+})
+function renderResults(){
+    if(!results.length){scEl.innerHTML='<div class="em" style="padding:30px;text-align:center;color:rgba(255,255,255,.15);font-size:.82rem">无结果</div>';return}
+    var h='',groups={}
+    for(var x=0;x<results.length;x++){var c=results[x].cat;if(!groups[c])groups[c]=[];groups[c].push(results[x])}
+    var order=['video','image','other'],lbl={'video':'🎬 视频','image':'🖼️ 图片','other':'📄 其他'}
+    for(var c=0;c<order.length;c++){
+        if(!activeCats[order[c]])continue
+        var items=groups[order[c]]
+        if(!items||!items.length)continue
+        h+='<div class="ch">'+lbl[order[c]]+'</div><div class="l">'
+        for(var x=0;x<items.length;x++){
+            var r=items[x]
+            var u=r.url.replace(/&/g,'&amp;').replace(/</g,'&lt;'),q=r.url.replace(/'/g,"\\'")
+            var pv=''
+            if(r.cat==='image')pv='<img src="'+u+'" loading="lazy" onerror="this.alt=\'❌\'">'
+            else if(r.cat==='video')pv='<video src="'+u+'" muted loop preload="metadata" controls onerror="this.outerHTML=\'<span class=ph>❌</span>\'"></video>'
+            else pv='<span class="ph">📄</span>'
+            h+='<div class="it"><div class="pv">'+pv+'</div><div><a class="u" href="'+q+'" target="_blank">'+u+'</a><div class="f"><span class="t tg">'+r.ext+'</span><span class="t tc">'+r.cat+'</span><button class="c" onclick="cpy(\''+q+'\')">📋 复制</button></div></div></div>'
+        }
+        h+='</div>'
+    }
+    function cb(c){return activeCats[c]?'checked':''}
+    var flHtml='<div class="fl" id="fl"><label class="fl-lb" data-c="video"><input type="checkbox" '+cb('video')+'><span class="mk"></span> 🎬 视频</label><label class="fl-lb" data-c="image"><input type="checkbox" '+cb('image')+'><span class="mk"></span> 🖼️ 图片</label><label class="fl-lb" data-c="other"><input type="checkbox" '+cb('other')+'><span class="mk"></span> 📄 其他</label></div>'
+    scEl.innerHTML=flHtml+(h||'<div class="em" style="padding:30px;text-align:center;color:rgba(255,255,255,.15);font-size:.82rem">无结果</div>')
+}
+
+var dz=document.getElementById('dz')
+// 点击与拖拽
+dz.addEventListener('click',function(){fi.click()})
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('dragover')})
+dz.addEventListener('dragleave',function(){dz.classList.remove('dragover')})
+dz.addEventListener('drop',function(e){
+    e.preventDefault();dz.classList.remove('dragover')
+    if(e.dataTransfer.files.length){fi.files=e.dataTransfer.files;fi.dispatchEvent(new Event('change'))}
+})
+var dzText=document.querySelector('.dz-text')
+fi.addEventListener('change',async function(e){
+    const files=Array.from(e.target.files)
+    if(!files.length)return
+    dzText.style.opacity='0'
+    setTimeout(function(){dzText.innerHTML='已选择 <strong>'+files[0].name+'</strong>';dzText.style.opacity='1'},250)
+    dz.style.opacity='.4';dz.style.pointerEvents='none'
+    pb.style.display='block'
+    pf.style.width='0%'
+    const found=[]
+    try{
+        for(let i=0;i<files.length;i++){
+            const f=files[i]
+            pf.style.width=((i/files.length)*100)+'%'
+            const buf=await f.arrayBuffer()
+            const d=new Uint8Array(buf)
+            const ms=sc(d)
+            if(!ms.length)continue
+            const seen=new Set()
+            for(const m of ms){
+                if(seen.has(''+m.off))continue
+                seen.add(''+m.off)
+                const us=nr(d,m.off)
+                if(!us.length)continue
+                found.push({name:f.name,off:m.off,cat:m.cat,ext:m.ext,url:us[0]})
+            }
+        }
+        const seen=new Set();results=[]
+        for(const x of found){
+            const k=x.url.replace(/\/+$/,'').split('?')[0]
+            if(!seen.has(k)){seen.add(k);results.push(x)}
+        }
+        if(!results.length){
+            st.textContent='❌ 未找到资源，换个文件试试'
+            pb.style.display='none'
+            dz.style.opacity="1";dz.style.pointerEvents="auto"
+            return
+        }
+        // 更新仪表盘
+        const vi=results.filter(function(x){return x.cat==='video'}).length
+        const im=results.filter(function(x){return x.cat==='image'}).length
+        const ot=results.length-vi-im
+        dv.textContent=vi;di.textContent=im;do_.textContent=ot
+        document.querySelectorAll('.di .d').forEach(function(d){d.className='d g'})
+        renderResults()
+
+        // 再执行动画展开
+        topEl.className='top sm'
+        botEl.className='bot on'
+        pb.style.display='none'
+        st.style.opacity='0'
+        setTimeout(function(){st.innerHTML='✧ 发现 <span class="n">'+results.length+'</span> 个资源';st.style.opacity='1'},250)
+        dash.style.opacity='1'
+
+        dz.style.opacity="1";dz.style.pointerEvents="auto"
+        cl.style.opacity='1';cl.style.visibility='visible'
+    }catch(err){
+        console.error(err)
+        st.textContent='❌ '+err.message
+        pb.style.display='none'
+        dz.style.opacity="1";dz.style.pointerEvents="auto"
+    }
+})
+
+cl.addEventListener('click',function(){
+    fi.value=''
+    cl.style.opacity='0';cl.style.visibility='hidden'
+    var bi=document.querySelector('.bi')
+    bi.classList.add('fade')
+    dash.style.opacity='0'
+    st.style.opacity='0';dzText.style.opacity='0'
+    setTimeout(function(){
+        st.innerHTML='✧ 选择 data_1 开始解析'
+        dzText.innerHTML='选择或拖拽 <strong>data_1</strong> 文件'
+        st.style.opacity='1';dzText.style.opacity='1'
+        topEl.className='top'
+        botEl.className='bot'
+        scEl.innerHTML=''
+        results=[]
+        bi.classList.remove('fade')
+        dz.style.opacity='1';dz.style.pointerEvents='auto'
+    },550)
+})
+
+function cpy(u){
+    navigator.clipboard.writeText(u).then(function(){t('✧ 已复制')})['catch'](function(){
+        var e=document.createElement('textarea')
+        e.value=u;document.body.appendChild(e);e.select()
+        document.execCommand('copy');document.body.removeChild(e)
+        t('✧ 已复制')
+    })
+}
+function t(m){ts.textContent=m;ts.className='ts s';clearTimeout(ts._t);ts._t=setTimeout(function(){ts.className='ts'},1800)}
+
+// 初始入场动画
+(function(){
+    var ct=document.getElementById('ct')
+    if(ct){
+        var children=ct.children
+        for(var i=0;i<children.length;i++){
+            if(children[i].id==='dash')continue
+            children[i].classList.add('enter')
+        }
+    }
+    topEl.classList.add('init')
+    setTimeout(function(){topEl.classList.remove('init')},1500)
+})();
+
+// 生成星空
+(function(){
+    var el=document.getElementById('stars'),h=''
+    var colors=['#fff','#f0f5ff','#ffe8cc','#e0f0ff','#fff5e6']
+    for(var i=0;i<70;i++){
+        var x=Math.random()*100,y=Math.random()*100,sz=.4+Math.random()*1.4
+        var cls='s',ci=Math.floor(Math.random()*colors.length)
+        if(Math.random()<.08){cls+=' bright';sz+=.4}
+        else if(Math.random()<.2){cls+=' faint'}
+        var glow=sz*5
+        var o1=.1+Math.random()*.3,o2=.6+Math.random()*.4,o3=.15+Math.random()*.3
+        var s1=.4+Math.random()*.4,s2=.8+Math.random()*.4,s3=.5+Math.random()*.4
+        var r1=-15+Math.random()*30,r2=-5+Math.random()*10,r3=-10+Math.random()*20
+        var dur=2+Math.random()*5,delay=Math.random()*6
+        h+='<div class="'+cls+'" style="left:'+x+'%;top:'+y+'%;font-size:'+sz+'rem;color:'+colors[ci]+';--glow:'+glow+'px;--o1:'+o1+';--o2:'+o2+';--o3:'+o3+';--s1:'+s1+';--s2:'+s2+';--s3:'+s3+';--r1:'+r1+'deg;--r2:'+r2+'deg;--r3:'+r3+'deg;animation:shimmer '+dur+'s ease-in-out '+delay+'s infinite backwards">✦</div>'
+    }
+    el.innerHTML=h
+    // 流星 - 同时生成1~3颗
+    function spawnMeteor(){
+        var m=document.createElement('div')
+        m.className='meteor'
+        // 多种方向来源
+        var dirType=Math.floor(Math.random()*4)
+        var x,y,angle,fromLeft
+        if(dirType===0){
+            x=Math.random()*18;y=Math.random()*25
+            angle=5+Math.random()*50;fromLeft=true
+        }else if(dirType===1){
+            x=82+Math.random()*18;y=Math.random()*25
+            angle=125+Math.random()*50;fromLeft=false
+        }else if(dirType===2){
+            x=Math.random()*6;y=5+Math.random()*70
+            angle=-20+Math.random()*40;fromLeft=true
+        }else{
+            x=5+Math.random()*90;y=Math.random()*8
+            angle=55+Math.random()*60;fromLeft=Math.random()>.5
+        }
+        var rad=angle*Math.PI/180
+        var dist=300+Math.random()*400
+        var tx=Math.cos(rad)*dist,ty=Math.sin(rad)*dist
+        var dur=4+Math.random()*3
+        var tailDir=fromLeft?'right':'left'
+        if(dirType===3)dur*=1.3
+        if(dirType===3&&Math.random()>.5){tailDir='bottom'}
+        var star=document.createElement('span')
+        star.className='s'
+        star.textContent='✦'
+        star.style.cssText='font-size:'+(10+Math.random()*6)+'px'
+        m.appendChild(star)
+        m.style.cssText='left:'+x+'%;top:'+y+'%;--tx:'+tx+'px;--ty:'+ty+'px;--dur:'+dur+'s'
+        el.appendChild(m)
+        setTimeout(function(){m.remove()},dur*1000+200)
+    }
+    // 定时生成流星
+    spawnMeteor()
+    setInterval(function(){
+        var n=1+Math.floor(Math.random()*3) // 每次1~3颗
+        for(var i=0;i<n;i++)setTimeout(spawnMeteor,i*400)
+    },2000+Math.random()*3000)
+})()
+</script>
+</body>
+</html>
