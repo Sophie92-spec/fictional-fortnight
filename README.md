@@ -22,7 +22,7 @@
 
 ## 在线使用
 
-打开 [GitHub Pages 链接](https://sophie92-spec.github.io/fictional-fortnight/) 即可使用，无需安装。
+点击此链接使用：https://sophie92-spec.github.io/fictional-fortnight/
 
 ## 效果图
 
