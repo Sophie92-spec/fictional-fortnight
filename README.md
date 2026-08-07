@@ -34,7 +34,7 @@
 
 ## 技术说明
 
-- 纯前端 HTML + CSS + JavaScript(拆分为 `index.html` / `style.css` / `script.js`),静态部署,无需构建
+- 纯前端 HTML + CSS + JavaScript(拆分为 `index.html` / `css/style.css` / `js/script.js`),静态部署,无需构建
 - 通过解析 Chromium Simple Cache 格式,从字节流中提取资源链接
 - 扫描算法为单次线性扫描(替换原三重循环),配合 8MB 分块 + 64KB 重叠窗口读取
   大文件,既避免内存峰值,也防止 URL 跨块截断丢失
