@@ -276,23 +276,62 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 
 <script>
-const X={video:['.webm','.mp4','.m3u8'],image:['.png','.jpg','.jpeg','.gif','.webp'],other:['.json','.html','.js','.css','.xml','.dat']}
-const Q=[];for(const[c,x]of Object.entries(X))for(const e of x)Q.push({cat:c,ext:e,hex:[...e].map(c=>c.charCodeAt(0))})
-
-function sc(d){const r=[];for(const p of Q)for(let i=0;i<=d.length-p.hex.length;i++){let ok=1;for(let j=0;j<p.hex.length;j++)if(d[i+j]!==p.hex[j]){ok=0;break}if(ok)r.push({off:i,cat:p.cat,ext:p.ext})}return r}
-function nr(d,o,b=4096,a=512){const s=Math.max(0,o-b),e=Math.min(d.length,o+a);let t;try{t=new TextDecoder('utf-8').decode(d.slice(s,e))}catch{return[]}const u=[];const rx=/https?:\/\/[^\s"'\x00<>{}|\\^`\[\]]+/g,m=rx.exec(t);if(m)u.push(m[0]);return u}
+// 资源类型 → 扩展名映射
+const EXT_CATS={
+  video:['.webm','.mp4','.m4v','.mov','.mkv','.m3u8'],
+  image:['.png','.jpg','.jpeg','.gif','.webp','.bmp','.ico','.avif'],
+  other:['.json','.html','.htm','.js','.css','.xml','.dat','.woff','.woff2','.ttf']
+}
+// URL 中合法的字符(排除空白/引号/尖括号/大括号/管道/反斜杠/插入符/反引号/控制符)
+function isUrlChar(c){
+  if(c<=0x20||c>=0x7f)return false
+  return c!==0x22&&c!==0x27&&c!==0x3c&&c!==0x3e&&c!==0x7b&&c!==0x7d&&c!==0x7c&&c!==0x5c&&c!==0x5e&&c!==0x60
+}
+// 单次线性扫描,直接提取所有 http(s):// 链接,替代逐扩展名扫描(更快且更准)
+// 第二个参数为 true 时,跳过「被当前块截断」的 URL(留待下一块完整扫描)
+function findUrls(d,truncateAtEnd){
+  const r=[],dec=new TextDecoder('utf-8')
+  for(let i=0;i<d.length-4;i++){
+    if(d[i]!==0x68||d[i+1]!==0x74||d[i+2]!==0x74||d[i+3]!==0x70)continue // 'http'
+    const s=(d[i+4]===0x73)?i+5:i+4 // 'https' 则再跳过 's'
+    if(d[s]!==0x3a||d[s+1]!==0x2f||d[s+2]!==0x2f)continue // 必须是 '://'
+    let j=s+3
+    while(j<d.length&&isUrlChar(d[j]))j++
+    if(j-s-3>12&&!(truncateAtEnd&&j>=d.length)){ // 过滤过短的碎片;块尾截断的留待下一块
+      r.push({off:i,url:dec.decode(d.subarray(i,j))})
+    }
+    i=j-1
+  }
+  return r
+}
+// 根据 URL 扩展名判断资源类型
+function catFor(url){
+  const low=url.split('?')[0].split('#')[0].toLowerCase()
+  for(const c in EXT_CATS)for(const e of EXT_CATS[c])if(low.endsWith(e))return c
+  return 'other'
+}
+// 取 URL 的扩展名
+function extOf(url){
+  const p=url.split('?')[0].split('#')[0].match(/\.[a-z0-9]+$/i)
+  return p?p[0]:''
+}
 
 const $=function(id){return document.getElementById(id)}
 const topEl=$('top'),botEl=$('bot'),scEl=$('sc')
 const fi=$('fi'),pb=$('pb'),pf=$('pf'),cl=$('cl')
 const st=$('st'),dv=$('dv'),di=$('di'),do_=$('do'),dash=$('dash'),ts=$('ts')
-let results=[],activeCats={video:1,image:0,other:0}
+let results=[],activeCats={video:1,image:1,other:1}
 document.getElementById('sc').addEventListener('change',function(e){
     if(e.target.closest('.fl-lb')){
         var label=e.target.closest('.fl-lb')
         activeCats[label.dataset.c]=e.target.checked?1:0
         renderResults()
     }
+})
+// 复制按钮:事件委托,避免内联 onclick 的引号转义问题
+document.getElementById('sc').addEventListener('click',function(e){
+    var b=e.target.closest('.c')
+    if(b&&b.dataset.url)cpy(b.dataset.url)
 })
 function renderResults(){
     if(!results.length){scEl.innerHTML='<div class="em" style="padding:30px;text-align:center;color:rgba(255,255,255,.15);font-size:.82rem">无结果</div>';return}
@@ -306,12 +345,12 @@ function renderResults(){
         h+='<div class="ch">'+lbl[order[c]]+'</div><div class="l">'
         for(var x=0;x<items.length;x++){
             var r=items[x]
-            var u=r.url.replace(/&/g,'&amp;').replace(/</g,'&lt;'),q=r.url.replace(/'/g,"\\'")
+            var u=r.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')
             var pv=''
             if(r.cat==='image')pv='<img src="'+u+'" loading="lazy" onerror="this.alt=\'❌\'">'
             else if(r.cat==='video')pv='<video src="'+u+'" muted loop preload="metadata" controls onerror="this.outerHTML=\'<span class=ph>❌</span>\'"></video>'
             else pv='<span class="ph">📄</span>'
-            h+='<div class="it"><div class="pv">'+pv+'</div><div><a class="u" href="'+q+'" target="_blank">'+u+'</a><div class="f"><span class="t tg">'+r.ext+'</span><span class="t tc">'+r.cat+'</span><button class="c" onclick="cpy(\''+q+'\')">📋 复制</button></div></div></div>'
+            h+='<div class="it"><div class="pv">'+pv+'</div><div><a class="u" href="'+u+'" target="_blank">'+u+'</a><div class="f"><span class="t tg">'+r.ext+'</span><span class="t tc">'+r.cat+'</span><button class="c" data-url="'+u+'">📋 复制</button></div></div></div>'
         }
         h+='</div>'
     }
@@ -340,20 +379,22 @@ fi.addEventListener('change',async function(e){
     pf.style.width='0%'
     const found=[]
     try{
+        const CHUNK=8*1024*1024,OVERLAP=64*1024 // 重叠窗口需大于任何真实 URL 长度,防止跨块截断丢 URL
         for(let i=0;i<files.length;i++){
             const f=files[i]
-            pf.style.width=((i/files.length)*100)+'%'
-            const buf=await f.arrayBuffer()
-            const d=new Uint8Array(buf)
-            const ms=sc(d)
-            if(!ms.length)continue
-            const seen=new Set()
-            for(const m of ms){
-                if(seen.has(''+m.off))continue
-                seen.add(''+m.off)
-                const us=nr(d,m.off)
-                if(!us.length)continue
-                found.push({name:f.name,off:m.off,cat:m.cat,ext:m.ext,url:us[0]})
+            const size=f.size
+            let off=0
+            while(off<size){
+                const s=Math.max(0,off-OVERLAP)
+                const e=Math.min(size,off+CHUNK)
+                const buf=await f.slice(s,e).arrayBuffer()
+                const d=new Uint8Array(buf)
+                const urls=findUrls(d,e<size)
+                for(const u of urls){
+                    found.push({name:f.name,cat:catFor(u.url),ext:extOf(u.url),url:u.url})
+                }
+                pf.style.width=(100*((i+e/size)/files.length)).toFixed(1)+'%'
+                off+=CHUNK
             }
         }
         const seen=new Set();results=[]
@@ -395,6 +436,9 @@ fi.addEventListener('change',async function(e){
 
 cl.addEventListener('click',function(){
     fi.value=''
+    // 重置仪表盘计数与圆点颜色
+    dv.textContent='0';di.textContent='0';do_.textContent='0'
+    document.querySelectorAll('.di .d').forEach(function(d){d.className='d'})
     cl.style.opacity='0';cl.style.visibility='hidden'
     var bi=document.querySelector('.bi')
     bi.classList.add('fade')
