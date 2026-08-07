@@ -1,5 +1,7 @@
 # ✧ 米哈游启动器背景提取器
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 一键提取米哈游启动器中的动态背景视频与宣传图片,纯前端运行,不上传任何文件。
 
 ## 功能
@@ -38,3 +40,7 @@
   大文件,既避免内存峰值,也防止 URL 跨块截断丢失
 - 结果按 URL 去重,分类统计并支持筛选
 - 所有处理在浏览器本地完成,不上传任何文件
+
+## License
+
+[MIT](LICENSE)
