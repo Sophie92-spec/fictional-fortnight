@@ -1,93 +1,156 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>米哈游启动器背景提取器</title>
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0e1f" />
+    <meta
+      name="description"
+      content="一键提取米哈游启动器缓存中的动态背景视频与宣传图,纯前端本地解析,不上传任何文件。"
+    />
+    <title>米哈游启动器背景提取器</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%E2%9C%A7%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-<div class="top" id="top">
-    <div class="side side-l">
-        <div class="card">
-            <div class="t">✦ 这是什么</div>
-            <div class="d">米哈游启动器运行时会自动缓存启动界面的动态背景与宣传图，存放在 <span class="tag">data_1</span> 缓存文件中。</div>
+  <body>
+    <main class="top" id="top">
+      <aside class="side side-l">
+        <section class="card">
+          <h2 class="t">✦ 这是什么</h2>
+          <p class="d">
+            米哈游启动器运行时会自动缓存启动界面的动态背景与宣传图,存放在
+            <span class="tag">data_1</span> 缓存文件中。
+          </p>
+        </section>
+
+        <section class="card tinted">
+          <h2 class="t">📂 快速路径</h2>
+          <div class="path-row">
+            <input
+              class="path-input"
+              type="text"
+              value="%AppData%\miHoYo\HYP\1_1\fedata\Cache\Cache_Data"
+              readonly
+              aria-label="缓存目录路径"
+              onclick="this.select()"
+            />
+            <button
+              class="path-copy"
+              type="button"
+              data-copy="%AppData%\miHoYo\HYP\1_1\fedata\Cache\Cache_Data"
+              aria-label="复制缓存目录路径"
+            >
+              📋 复制
+            </button>
+          </div>
+          <p class="path-steps">
+            ① 点击上方 <span class="hl">📋 复制</span> 复制路径<br />
+            ② 打开「此电脑」→ 地址栏粘贴 → 回车<br />
+            ③ 选择 <span class="hl">data_1</span> 文件即可扫描
+          </p>
+        </section>
+      </aside>
+
+      <aside class="side side-r">
+        <section class="card">
+          <h2 class="t">✦ 操作方式</h2>
+          <p class="d">
+            <em>① 选择文件</em> — 点击下方按钮,选择 Cache_Data 中的 data_1 文件<br /><br />
+            <em>② 自动扫描</em> — 工具自动解析缓存数据,提取资源链接<br /><br />
+            <em>③ 预览下载</em> — 在下方列表中预览资源,点击即可下载
+          </p>
+        </section>
+      </aside>
+
+      <div class="stars" id="stars" aria-hidden="true"></div>
+
+      <div class="ct" id="ct">
+        <div class="i" aria-hidden="true">✧</div>
+        <h1>米哈游启动器背景提取</h1>
+        <p class="s">✦ 轻 松 提 取 动 态 背 景 ✦</p>
+        <div class="path-tags"><span>📁 Cache_Data</span><span>📄 data_1</span></div>
+        <div class="ln" aria-hidden="true"></div>
+
+        <div class="dash" id="dash">
+          <div class="di"><span class="d"></span><span class="b">视频</span><span class="v" id="dv">0</span></div>
+          <div class="di"><span class="d"></span><span class="b">图片</span><span class="v" id="di">0</span></div>
+          <div class="di"><span class="d"></span><span class="b">其他</span><span class="v" id="do">0</span></div>
         </div>
-        <div class="card" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.12)">
-            <div class="t">📂 快速路径</div>
-            <div style="display:flex;gap:6px;margin-top:4px">
-                <input type="text" value="%AppData%\miHoYo\HYP\1_1\fedata\Cache\Cache_Data" readonly style="flex:1;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:8px 10px;font-size:.75rem;font-family:monospace;color:#a5b4fc;outline:none;width:100%;min-width:0;text-overflow:clip" onfocus="this.select()">
-                <button onclick="navigator.clipboard.writeText('%AppData%\\miHoYo\\HYP\\1_1\\fedata\\Cache\\Cache_Data');t('✅ 路径已复制')" style="background:rgba(99,102,241,.15);border:none;border-radius:6px;padding:6px 12px;color:#a5b4fc;font-size:.75rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s" onmouseover="this.style.background='rgba(99,102,241,.25)'" onmouseout="this.style.background='rgba(99,102,241,.15)'">📋 复制</button>
-            </div>
-            <div style="font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.6;margin-top:6px;padding:8px 10px;background:rgba(0,0,0,.15);border-radius:6px">
-                ① 点击上方 <span style="color:#a5b4fc">📋 复制</span> 复制路径<br>
-                ② 打开「此电脑」→ 地址栏粘贴 → 回车<br>
-                ③ 选择 <span style="color:#a5b4fc">data_1</span> 文件即可扫描
-            </div>
-        </div>
-    </div>
-    <div class="side side-r">
-        <div class="card">
-            <div class="t">✦ 操作方式</div>
-            <div class="d"><em>① 选择文件</em> — 点击下方按钮，选择 Cache_Data 中的 data_1 文件<br><br><em>② 自动扫描</em> — 工具自动解析缓存数据，提取资源链接<br><br><em>③ 预览下载</em> — 在下方列表中预览资源，点击即可下载</div>
-        </div>
-    </div>
-    <div class="stars" id="stars"></div>
-    <div class="ct" id="ct">
-        <div class="i">✧</div>
-    <h1>米哈游启动器背景提取</h1>
-    <p class="s">✦ 轻 松 提 取 动 态 背 景 ✦</p>
-    <div class="path-tags" style="font-size:.78rem;color:rgba(255,255,255,.3);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
-        <span>📁 Cache_Data</span> <span>📄 data_1</span>
-    </div>
-    <div class="ln"></div>
-    <div class="dash" id="dash">
-        <div class="di"><span class="d"></span> <span class="b">视频</span> <span class="v" id="dv">0</span></div>
-        <div class="di"><span class="d"></span> <span class="b">图片</span> <span class="v" id="di">0</span></div>
-        <div class="di"><span class="d"></span> <span class="b">其他</span> <span class="v" id="do">0</span></div>
-    </div>
-    <div class="lower" id="lower">
-        <div class="st" id="st">✧ 选择 data_1 开始解析</div>
-        <div class="btn-wrap" style="display:flex;flex-direction:column;align-items:center;gap:2px">
+
+        <div class="lower" id="lower">
+          <div class="st" id="st" aria-live="polite">✧ 选择 data_1 开始解析</div>
+          <div class="btn-wrap">
             <div class="pk-wrap">
-                <div class="drop-zone" id="dz">
-                    <div class="dz-icon">📂</div>
-                    <div class="dz-text">选择或拖拽 <strong>data_1</strong> 文件</div>
-                </div>
-                <input type="file" id="fi" multiple style="display:none">
+              <div
+                class="drop-zone"
+                id="dz"
+                role="button"
+                tabindex="0"
+                aria-label="选择或拖拽 data_1 文件"
+              >
+                <div class="dz-icon" aria-hidden="true">📂</div>
+                <div class="dz-text">选择或拖拽 <strong>data_1</strong> 文件</div>
+              </div>
+              <input type="file" id="fi" multiple hidden />
             </div>
-            <button class="btn" id="cl" style="opacity:0;visibility:hidden;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);padding:8px 14px;border-radius:8px;font-size:.75rem;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.06)">✕ 清除</button>
+            <button class="btn" id="cl" type="button">✕ 清除</button>
+            <div class="pb" id="pb" role="progressbar" aria-label="扫描进度">
+              <div class="pf" id="pf"></div>
+            </div>
+          </div>
         </div>
-    </div>
-</div>
-</div>
+      </div>
+    </main>
 
-<div class="bot" id="bot">
-    <div class="bi">
-        <div class="pb" id="pb"><div class="pf" id="pf"></div></div>
+    <section class="bot" id="bot" aria-label="提取结果">
+      <div class="bi">
         <div class="sc" id="sc"></div>
-    </div>
-</div>
+      </div>
+    </section>
 
-<div class="ft">
-    <a href="https://github.com/Sophie92-spec/fictional-fortnight" target="_blank" title="在 GitHub 上查看源代码" style="text-decoration:none;opacity:.35;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='.35'">
-        <svg viewBox="0 0 16 16" width="30" height="30" fill="currentColor" style="color:rgba(255,255,255,.5)">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+    <footer class="ft">
+      <a
+        class="ft-link"
+        href="https://github.com/Sophie92-spec/fictional-fortnight"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="在 GitHub 上查看源代码"
+      >
+        <svg viewBox="0 0 16 16" width="30" height="30" fill="currentColor" aria-hidden="true">
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+          />
         </svg>
-        <span style="font-size:.82rem;color:rgba(255,255,255,.35)">GitHub</span>
-    </a>
-    <span style="color:rgba(255,255,255,.08);font-size:1.2rem;padding:0 6px">|</span>
-    <a href="https://space.bilibili.com/447878463" target="_blank" title="Bilibili 主页" style="text-decoration:none;opacity:.35;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='.35'">
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" style="color:rgba(255,255,255,.5)">
-            <path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 01-.373-.907c0-.373.124-.684.373-.933.249-.249.56-.373.933-.373.373 0 .694.124.96.373l1.974 1.867h4.947l1.973-1.867c.267-.249.588-.373.96-.373.374 0 .685.124.934.373.249.249.373.56.373.933a1.17 1.17 0 01.16.587c0 .231-.053.44-.16.627l-1.174 1.106zM6.667 16.347c.8 0 1.48-.278 2.04-.833.56-.556.84-1.234.84-2.034 0-.8-.28-1.48-.84-2.04-.56-.56-1.24-.84-2.04-.84-.8 0-1.48.28-2.04.84-.56.56-.84 1.24-.84 2.04 0 .8.28 1.478.84 2.034.56.555 1.24.833 2.04.833zm10.666 0c.8 0 1.48-.278 2.04-.833.56-.556.84-1.234.84-2.034 0-.8-.28-1.48-.84-2.04-.56-.56-1.24-.84-2.04-.84-.8 0-1.48.28-2.04.84-.56.56-.84 1.24-.84 2.04 0 .8.28 1.478.84 2.034.56.555 1.24.833 2.04.833z"/>
+        <span class="ft-label">GitHub</span>
+      </a>
+      <span class="ft-sep" aria-hidden="true">|</span>
+      <a
+        class="ft-link"
+        href="https://space.bilibili.com/447878463"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Bilibili 主页"
+      >
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true">
+          <path
+            d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 01-.373-.907c0-.373.124-.684.373-.933.249-.249.56-.373.933-.373.373 0 .694.124.96.373l1.974 1.867h4.947l1.973-1.867c.267-.249.588-.373.96-.373.374 0 .685.124.934.373.249.249.373.56.373.933a1.17 1.17 0 01.16.587c0 .231-.053.44-.16.627l-1.174 1.106zM6.667 16.347c.8 0 1.48-.278 2.04-.833.56-.556.84-1.234.84-2.034 0-.8-.28-1.48-.84-2.04-.56-.56-1.24-.84-2.04-.84-.8 0-1.48.28-2.04.84-.56.56-.84 1.24-.84 2.04 0 .8.28 1.478.84 2.034.56.555 1.24.833 2.04.833zm10.666 0c.8 0 1.48-.278 2.04-.833.56-.556.84-1.234.84-2.034 0-.8-.28-1.48-.84-2.04-.56-.56-1.24-.84-2.04-.84-.8 0-1.48.28-2.04.84-.56.56-.84 1.24-.84 2.04 0 .8.28 1.478.84 2.034.56.555 1.24.833 2.04.833z"
+          />
         </svg>
-        <span style="font-size:.82rem;color:rgba(255,255,255,.35)">Bilibili</span>
-    </a>
-</div>
+        <span class="ft-label">Bilibili</span>
+      </a>
+    </footer>
 
-<div class="ts" id="ts">已复制</div>
+    <div class="ts" id="ts" role="status" aria-live="polite"></div>
 
-<script src="js/script.js"></script>
-</body>
+    <noscript>
+      <p style="color: #fff; text-align: center; padding: 20px">需要启用 JavaScript 才能扫描缓存文件。</p>
+    </noscript>
+
+    <script src="js/script.js"></script>
+  </body>
 </html>
